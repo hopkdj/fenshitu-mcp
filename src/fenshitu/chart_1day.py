@@ -79,7 +79,7 @@ def generate_1day_chart(
 
     ax_price.plot(display_times, pd.concat([morning_df["close"], afternoon_df["close"]]), color=COLOR_PRICE_LINE, linewidth=1)
     ax_price.plot(display_times, pd.concat([morning_df["avg_price"], afternoon_df["avg_price"]]), color=COLOR_AVG_LINE, linewidth=1)
-    ax_price.axhline(y=prev_close, color=COLOR_ZERO_LINE, linestyle="--", linewidth=0.5, alpha=0.5)
+    ax_price.axhline(y=prev_close, color="#999999", linestyle="--", linewidth=0.8, alpha=0.8, zorder=5)
 
     ax_price.grid(True, color=COLOR_GRID, linestyle="-", linewidth=0.5, alpha=0.5)
 
