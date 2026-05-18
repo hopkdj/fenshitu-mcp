@@ -24,7 +24,7 @@ def get_stock_name(code: str) -> str:
 
 def fetch_intraday_data(code: str, date: str) -> pd.DataFrame:
     client = Quotes.factory(market="std")
-    bars = client.minutes(symbol=code, frequency=1, date=date, limit=240)
+    bars = client.minutes(symbol=code, frequency=1, date=date, limit=240, fq=1)
 
     if bars.empty:
         return pd.DataFrame()
