@@ -83,9 +83,12 @@ def generate_1day_chart(
 
     ax_price.grid(True, color=COLOR_GRID, linestyle="-", linewidth=0.5, alpha=0.5)
 
-    price_range = df["close"].max() - df["close"].min()
-    padding = price_range * 0.05
-    ax_price.set_ylim(df["close"].min() - padding, df["close"].max() + padding)
+    is_star_market = stock_code.startswith("688") or stock_code.startswith("300")
+    limit_pct = 0.20 if is_star_market else 0.10
+    
+    y_min = prev_close * (1 - limit_pct)
+    y_max = prev_close * (1 + limit_pct)
+    ax_price.set_ylim(y_min, y_max)
 
     ax_price.tick_params(axis="y", colors=COLOR_TEXT, labelsize=FONT_SIZE_AXIS)
     ax_price.spines["top"].set_visible(False)

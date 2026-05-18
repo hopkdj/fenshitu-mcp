@@ -43,6 +43,7 @@ def generate_7day_chart(
 
     all_prices = []
     all_volumes = []
+    first_prev_close = None
 
     processed_data = []
     for date_str in sorted_dates:
@@ -50,11 +51,15 @@ def generate_7day_chart(
         df["avg_price"] = calc_avg_price(df)
         all_prices.extend(df["close"].tolist())
         all_volumes.extend(df["volume"].tolist())
+        if first_prev_close is None:
+            first_prev_close = df["open"].iloc[0]
         processed_data.append(df)
 
-    global_price_min = min(all_prices)
     global_price_max = max(all_prices)
-    price_padding = (global_price_max - global_price_min) * 0.05
+    max_pct_above = (global_price_max - first_prev_close) / first_prev_close
+    limit_pct = max(max_pct_above, 0.10)
+    y_min = first_prev_close * (1 - limit_pct)
+    y_max = first_prev_close * (1 + limit_pct)
 
     fig = plt.figure(figsize=(IMG_WIDTH / 100, IMG_HEIGHT_7DAY / 100), dpi=100, facecolor=COLOR_BG)
     fig.subplots_adjust(left=0.06, right=0.94, top=0.92, bottom=0.08)
@@ -82,13 +87,11 @@ def generate_7day_chart(
         
         display_times = pd.concat([morning_df["display_time"], afternoon_df["display_time"]])
         
-        prev_close = df["open"].iloc[0]
-
         ax_price.plot(display_times, pd.concat([morning_df["close"], afternoon_df["close"]]), color=COLOR_PRICE_LINE, linewidth=0.8)
         ax_price.plot(display_times, pd.concat([morning_df["avg_price"], afternoon_df["avg_price"]]), color=COLOR_AVG_LINE, linewidth=0.8)
-        ax_price.axhline(y=prev_close, color="#999999", linestyle="--", linewidth=0.8, alpha=0.8, zorder=5)
+        ax_price.axhline(y=first_prev_close, color="#999999", linestyle="--", linewidth=0.8, alpha=0.8, zorder=5)
 
-        ax_price.set_ylim(global_price_min - price_padding, global_price_max + price_padding)
+        ax_price.set_ylim(y_min, y_max)
 
         ax_price.grid(True, color=COLOR_GRID, linestyle="-", linewidth=0.3, alpha=0.4)
         ax_price.tick_params(axis="y", colors=COLOR_TEXT_DIM, labelsize=FONT_SIZE_AXIS - 2)
@@ -104,7 +107,7 @@ def generate_7day_chart(
             sec_axis = ax_price.twinx()
             sec_axis.set_ylim(ax_price.get_ylim())
             sec_axis.set_yticks(ax_price.get_yticks())
-            sec_labels = [(y - prev_close) / prev_close * 100 for y in ax_price.get_yticks()]
+            sec_labels = [(y - first_prev_close) / first_prev_close * 100 for y in ax_price.get_yticks()]
             sec_axis.set_yticklabels([f"{l:+.1f}%" for l in sec_labels], color=COLOR_TEXT_DIM, fontsize=FONT_SIZE_AXIS - 2)
             sec_axis.spines["top"].set_visible(False)
             sec_axis.spines["right"].set_visible(False)
