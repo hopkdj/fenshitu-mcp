@@ -69,13 +69,16 @@ def generate_1day_chart(
     morning_mask = df["time"].dt.strftime("%H:%M") <= "11:30"
     afternoon_mask = df["time"].dt.strftime("%H:%M") >= "13:00"
     
-    morning_df = df[morning_mask]
-    afternoon_df = df[afternoon_mask]
+    morning_df = df[morning_mask].copy()
+    afternoon_df = df[afternoon_mask].copy()
+    
+    afternoon_df["display_time"] = afternoon_df["time"] - pd.Timedelta(hours=1, minutes=30)
+    morning_df["display_time"] = morning_df["time"]
+    
+    display_times = pd.concat([morning_df["display_time"], afternoon_df["display_time"]])
 
-    ax_price.plot(morning_df["time"], morning_df["close"], color=COLOR_PRICE_LINE, linewidth=1)
-    ax_price.plot(afternoon_df["time"], afternoon_df["close"], color=COLOR_PRICE_LINE, linewidth=1)
-    ax_price.plot(morning_df["time"], morning_df["avg_price"], color=COLOR_AVG_LINE, linewidth=1)
-    ax_price.plot(afternoon_df["time"], afternoon_df["avg_price"], color=COLOR_AVG_LINE, linewidth=1)
+    ax_price.plot(display_times, pd.concat([morning_df["close"], afternoon_df["close"]]), color=COLOR_PRICE_LINE, linewidth=1)
+    ax_price.plot(display_times, pd.concat([morning_df["avg_price"], afternoon_df["avg_price"]]), color=COLOR_AVG_LINE, linewidth=1)
     ax_price.axhline(y=prev_close, color=COLOR_ZERO_LINE, linestyle="--", linewidth=0.5, alpha=0.5)
 
     ax_price.grid(True, color=COLOR_GRID, linestyle="-", linewidth=0.5, alpha=0.5)
@@ -100,14 +103,14 @@ def generate_1day_chart(
     sec_axis.spines["bottom"].set_visible(False)
     sec_axis.spines["left"].set_visible(False)
 
-    morning_vol = morning_df[["time", "open", "close", "volume"]]
-    afternoon_vol = afternoon_df[["time", "open", "close", "volume"]]
+    morning_vol = morning_df[["display_time", "open", "close", "volume"]]
+    afternoon_vol = afternoon_df[["display_time", "open", "close", "volume"]]
     
     morning_colors = [COLOR_UP if c >= o else COLOR_DOWN for o, c in zip(morning_vol["open"], morning_vol["close"])]
     afternoon_colors = [COLOR_UP if c >= o else COLOR_DOWN for o, c in zip(afternoon_vol["open"], afternoon_vol["close"])]
     
-    ax_vol.bar(morning_vol["time"], morning_vol["volume"], color=morning_colors, alpha=0.7, width=0.0006)
-    ax_vol.bar(afternoon_vol["time"], afternoon_vol["volume"], color=afternoon_colors, alpha=0.7, width=0.0006)
+    ax_vol.bar(morning_vol["display_time"], morning_vol["volume"], color=morning_colors, alpha=0.7, width=0.0006)
+    ax_vol.bar(afternoon_vol["display_time"], afternoon_vol["volume"], color=afternoon_colors, alpha=0.7, width=0.0006)
     ax_vol.grid(True, color=COLOR_GRID, linestyle="-", linewidth=0.5, alpha=0.3)
     ax_vol.tick_params(axis="y", colors=COLOR_TEXT_DIM, labelsize=FONT_SIZE_AXIS - 1)
     ax_vol.spines["top"].set_visible(False)
@@ -123,9 +126,9 @@ def generate_1day_chart(
         datetime.datetime.strptime(f"{date} 09:30", "%Y%m%d %H:%M"),
         datetime.datetime.strptime(f"{date} 10:30", "%Y%m%d %H:%M"),
         datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M"),
-        datetime.datetime.strptime(f"{date} 13:00", "%Y%m%d %H:%M"),
-        datetime.datetime.strptime(f"{date} 14:00", "%Y%m%d %H:%M"),
-        datetime.datetime.strptime(f"{date} 15:00", "%Y%m%d %H:%M"),
+        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=30),
+        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=90),
+        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=150),
     ]
     ax_vol.set_xticks(time_ticks)
     ax_vol.set_xticklabels(["09:30", "10:30", "11:30", "13:00", "14:00", "15:00"])
