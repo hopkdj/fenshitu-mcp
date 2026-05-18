@@ -134,6 +134,11 @@ def generate_1day_chart(
     ]
     ax_vol.set_xticks(time_ticks)
     ax_vol.set_xticklabels(["09:30", "10:30", "11:30", "14:00", "15:00"])
+    
+    x_start = datetime.datetime.strptime(f"{date} 09:30", "%Y%m%d %H:%M")
+    x_end = datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=120)
+    ax_vol.set_xlim(x_start, x_end)
+    ax_price.set_xlim(x_start, x_end)
 
     title_text = f"{stock_name}({stock_code})  {date_display}"
     fig.text(0.08, 0.94, title_text, color=COLOR_TEXT_BRIGHT, fontsize=FONT_SIZE_TITLE, fontweight="bold")

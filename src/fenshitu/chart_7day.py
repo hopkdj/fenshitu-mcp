@@ -142,6 +142,11 @@ def generate_7day_chart(
         ]
         ax_vol.set_xticks(time_ticks)
         ax_vol.set_xticklabels(["09:30", "11:30", "14:00", "15:00"], fontsize=FONT_SIZE_TIME - 2)
+        
+        x_start = datetime.datetime.strptime(f"{date_str} 09:30", "%Y%m%d %H:%M")
+        x_end = datetime.datetime.strptime(f"{date_str} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=120)
+        ax_vol.set_xlim(x_start, x_end)
+        ax_price.set_xlim(x_start, x_end)
 
         if day_idx > 0:
             ax_vol.set_yticks([])
