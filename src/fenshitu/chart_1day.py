@@ -126,12 +126,11 @@ def generate_1day_chart(
         datetime.datetime.strptime(f"{date} 09:30", "%Y%m%d %H:%M"),
         datetime.datetime.strptime(f"{date} 10:30", "%Y%m%d %H:%M"),
         datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M"),
-        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=30),
-        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=90),
-        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=150),
+        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=60),
+        datetime.datetime.strptime(f"{date} 11:30", "%Y%m%d %H:%M") + pd.Timedelta(minutes=120),
     ]
     ax_vol.set_xticks(time_ticks)
-    ax_vol.set_xticklabels(["09:30", "10:30", "11:30", "13:00", "14:00", "15:00"])
+    ax_vol.set_xticklabels(["09:30", "10:30", "11:30", "14:00", "15:00"])
 
     title_text = f"{stock_name}({stock_code})  {date_display}"
     fig.text(0.08, 0.94, title_text, color=COLOR_TEXT_BRIGHT, fontsize=FONT_SIZE_TITLE, fontweight="bold")
